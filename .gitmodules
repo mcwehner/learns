@@ -1,0 +1,3 @@
+[submodule "deep-learning-on-udacity"]
+	path = deep-learning-on-udacity
+	url = git@github.com:mcwehner/learns-deep-learning-on-udacity.git

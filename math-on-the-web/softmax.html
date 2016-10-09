@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Visualizing Softmax</title>
+
+		<style>
+		svg {
+			overflow: visible;
+		}
+
+		rect {
+			fill: steelblue;
+			stroke: black;
+			stroke-width: 0.25px;
+		}
+
+		#softmax {
+			display: flex;
+			align-items: center;
+		}
+
+		figcaption {
+			margin-bottom: 1em;
+		}
+		</style>
+
+		<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML"></script>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+	</head>
+	<body>
+		<h1>Visualizing Softmax</h1>
+
+		<figure>
+			<figcaption>The softmax function</figcaption>
+
+			<p>
+				`S(x_i) = e^(x_i) / (sum_j e^(x_j))`
+			</p>
+		</figure>
+
+		<figure id="softmax">
+			<figcaption>`x = [(3.0), (1.0), (0.2)]`</figcaption>
+
+			<svg id="plot_softmax">
+				<g class="plot"/>
+				<g class="left axis"/>
+				<g class="bottom axis"/>
+			</svg>
+		</figure>
+
+		<p>
+			`x = `
+			<input name="x" value="3.0, 1.0, 0.2"/>
+		</p>
+
+		<script>
+		function updateMath () {
+			MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
+		}
+
+		function softmax (x) {
+			var sum = x.reduce(function (a, d) { return a + Math.exp(d); }, 0);
+
+			return x.map(function (d) { return Math.exp(d) / sum; });
+		}
+
+		function drawSoftmax (x) {
+			var	svg	= document.getElementById('plot_softmax'),
+				svgLeftAxis	= svg.querySelector('.left.axis'),
+				svgBottomAxis	= svg.querySelector('.bottom.axis'),
+				svgPlot	= svg.querySelector('.plot'),
+				xScale	= d3.scaleBand().domain(x).padding(0.1),
+				yScale	= d3.scaleLinear(),
+				leftAxis	= d3.axisLeft(xScale),
+				bottomAxis	= d3.axisBottom(yScale);
+
+			var margin = {
+				left: 0,
+				bottom: 0
+			};
+
+			var bounds = {
+				width:	parseInt(window.getComputedStyle(svg).width),
+				height:	parseInt(window.getComputedStyle(svg).height)
+			};
+
+			xScale.rangeRound([0, bounds.height]);
+			d3.select(svgLeftAxis).call(leftAxis);
+			margin.left = svgLeftAxis.getBoundingClientRect().width;
+
+			yScale.rangeRound([0, bounds.width - margin.left]);
+
+			d3.select(svgBottomAxis)
+				.attr('transform', 'translate(0, ' + bounds.height + ')')
+				.call(bottomAxis);
+
+			margin.bottom = svgBottomAxis.getBoundingClientRect().height;
+
+			var bars = d3.select(svgPlot).selectAll('rect').data(softmax(x));
+
+			bars.exit().remove();
+
+			bars
+				.enter()
+				.append('rect')
+				.merge(bars)
+				.attr('x', 0)
+				.attr('y', function (d, i) { return xScale(x[i]); })
+				.attr('width', function (d, i) { return yScale(d); })
+				.attr('height', xScale.bandwidth());
+
+			svg.style.marginLeft	= margin.left;
+			svg.style.marginBottom	= margin.bottom;
+		}
+
+		drawSoftmax([3.0, 1.0, 0.2]);
+		</script>
+	</body>
+</html>
