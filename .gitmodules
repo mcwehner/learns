@@ -4,3 +4,6 @@
 [submodule "ml-for-hackers"]
 	path = ml-for-hackers
 	url = git@github.com:mcwehner/learns-ml-for-hackers.git
+[submodule "markdown-and-cousins"]
+	path = markdown-and-cousins
+	url = git@github.com:mcwehner/learns-markdown-and-cousins.git
